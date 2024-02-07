@@ -9,6 +9,11 @@ import Foundation
 // Talks to -> interactor , router , view
 // Class , protocol
 
+enum NetowkError : Error {
+    case NetworkFailed
+    case ParsingFailed
+}
+
 protocol AnyPresenter {
     var router : AnyRouter? {get set}
     var interactor : AnyInteractor? {get set}
@@ -20,17 +25,22 @@ protocol AnyPresenter {
 class CryptoPresenter : AnyPresenter {
     var router: AnyRouter?
     
-    var interactor: AnyInteractor?
+    var interactor: AnyInteractor?{
+        didSet{
+            interactor?.downloadCryptos()
+        }
+    }
+
     
     var view: AnyView?
     
     func interactorDidDownloadCrypto(result: Result<[Crypto], Error>) {
         switch result {
         case .success(let cryptos):
-            print(cryptos)
+            view?.update(with: cryptos)
             //update view
-        case .failure(let error):
-            print(error)
+        case .failure( _):
+            view?.update(with: "Try again later")
         }
     }
     
